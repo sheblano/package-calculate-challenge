@@ -6,8 +6,10 @@ import * as readline from "readline";
 import { CONSTANTS } from './constants';
 
 export class Packer {
-    public async pack(inputFile: string): Promise<string | undefined> {
-        const packages: Package[] = await this.processLineByLine(inputFile);
+    public static async pack(inputFile: string): Promise<string | undefined> {
+        const packerInstance = new Packer();
+        const packages: Package[] = await packerInstance.processLineByLine(inputFile);
+
         let result = '';
         if (packages.length > 0) {
             // console.log('*** from package *** ');
@@ -15,7 +17,7 @@ export class Packer {
             for (let i = 0; i < packages.length; i++) {
                 // console.log('*** test case *** ' + i);
                 const currentPackage = packages[i];
-                result += this.calculatePackage(currentPackage.weightLimit, currentPackage.packageItems);
+                result += packerInstance.calculatePackage(currentPackage.weightLimit, currentPackage.packageItems);
                 // for new line in all cases except last one
                 if (i < packages.length - 1) {
                     result += '\n';
