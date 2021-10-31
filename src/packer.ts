@@ -13,7 +13,7 @@ export class Packer {
             // console.log('*** from package *** ');
             // console.log(JSON.stringify(packages));
             for (let i = 0; i < packages.length; i++) {
-                console.log('*** test case *** ' + i);
+                // console.log('*** test case *** ' + i);
                 const currentPackage = packages[i];
                 result += this.calculatePackage(currentPackage.weightLimit, currentPackage.packageItems);
                 // for new line in all cases except last one
