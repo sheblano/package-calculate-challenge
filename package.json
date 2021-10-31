@@ -1,0 +1,29 @@
+{
+  "name": "package-calculate-challenge",
+  "version": "1.0.0",
+  "description": "this package for resolving the package challenge",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npx tsc",
+    "prepare": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sheblano/package-calculate-challenge.git"
+  },
+  "author": "mohamed shebl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sheblano/package-calculate-challenge/issues"
+  },
+  "homepage": "https://github.com/sheblano/package-calculate-challenge#readme",
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "typescript": "^4.4.4"
+  }
+}
