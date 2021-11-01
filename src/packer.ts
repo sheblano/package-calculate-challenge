@@ -1,4 +1,4 @@
-import { ApiError } from './error';
+import { ApiError } from './exceptions/error';
 import { Package } from './models/package';
 import { PackageItem } from './models/package-item';
 import * as fs from "fs";
@@ -29,7 +29,12 @@ export class Packer {
         return result;
     }
 
-    private async processLineByLine(filePath: string) {
+    /**
+     * this method for reading the test input file line by line and build model
+     * @param filePath 
+     * @returns void
+     */
+    private async processLineByLine(filePath: string): Promise<Package[]> {
         const packages: Package[] = [];
         const fileStream = fs.createReadStream(filePath);
 
@@ -47,9 +52,13 @@ export class Packer {
         return packages;
     }
 
-    private convertInputLineToPackage(line: string) {
-        // line = '81 : (1,53.38,€45) (2,88.62,€98) (3,78.48,€3) (4,72.30,€76) (5,30.18,€9) (6,46.34,€48)';
-        // let currentPackage: Package;
+    /**
+     * convert line input to a package model
+     * @param line 
+     * @returns void
+     * @throws ApiError if package weight exceeds
+     */
+    private convertInputLineToPackage(line: string): Package {
         const dividedLine = line.split(' : ');
         const packageWeigthLimit = +dividedLine[0].trim();
         const packageItems: PackageItem[] = [];
@@ -77,6 +86,13 @@ export class Packer {
         return new Package(packageWeigthLimit, packageItems);
     }
 
+    /**
+     * check the package item constraints index, weight and cost
+     * @param index 
+     * @param weight 
+     * @param cost 
+     * @throws ApiError if any constraint break
+     */
     private checkItemConstraints(index: number, weight: number, cost: number) {
         if (index && index > CONSTANTS.MAX_PACKAGE_ITEMS_LENGTH) {
             throw new ApiError(`item index should be less than or equal ${CONSTANTS.MAX_PACKAGE_ITEMS_LENGTH}`);
@@ -91,6 +107,12 @@ export class Packer {
         }
     }
 
+    /**
+     * calculating the items which should fulfil total weight is less than or equal to the package limit and the total cost is as large as possible
+     * @param maxWeight 
+     * @param packageItems 
+     * @returns string of desired format for the output
+     */
     private calculatePackage(maxWeight: number, packageItems: PackageItem[]): string {
         const combinations = this.getAllCombinationsForItemsIndexes(maxWeight, packageItems);
         const inRangeItems = this.checkItemsInWeightRange(combinations, packageItems, maxWeight);
@@ -98,31 +120,52 @@ export class Packer {
         return this.convertPackageSelectedItemsToString(itemsWithHeightestCost);
     }
 
-    private selectHeightestCostCombination(combinations: string[], packageItems: PackageItem[]) {
-        const heightestCostGroup = {
+    /**
+     * choose best package items to fulfil the highest cost with best weight
+     * @param combinations 
+     * @param packageItems 
+     * @returns string
+     */
+    private selectHeightestCostCombination(combinations: string[], packageItems: PackageItem[]): string {
+        const selectedGroup = {
             cost: 0,
+            weight: 0,
             combinations: '-'
         };
 
         combinations.forEach(combCase => {
             let totalCostForCase = 0;
+            let totalWeightForCase = 0;
             for (let i = 0; i < combCase.length; i++) {
                 const packageItemIndex = +combCase[i];
                 const itemInThePachage = packageItems.find(obj => {
                     return obj.index === packageItemIndex
                 });
                 totalCostForCase += itemInThePachage?.cost || 0;
+                totalWeightForCase += itemInThePachage?.weight || 0;
             }
 
-            if (totalCostForCase >= heightestCostGroup.cost) {
-                heightestCostGroup.cost = totalCostForCase;
-                heightestCostGroup.combinations = combCase;
+            if (totalCostForCase >= selectedGroup.cost) {
+                selectedGroup.cost = totalCostForCase;
+                selectedGroup.weight = totalWeightForCase;
+                selectedGroup.combinations = combCase;
+            } else if (totalCostForCase === selectedGroup.cost && totalWeightForCase < selectedGroup.weight) {
+                selectedGroup.cost = totalCostForCase;
+                selectedGroup.weight = totalWeightForCase;
+                selectedGroup.combinations = combCase;
             }
         });
-        return heightestCostGroup.combinations;
+        return selectedGroup.combinations;
     }
 
-    private checkItemsInWeightRange(combinations: string[], packageItems: PackageItem[], maxWeight: number) {
+    /**
+     * check package items in weight range
+     * @param combinations 
+     * @param packageItems 
+     * @param maxWeight 
+     * @returns string[] with item indexes for each combination 
+     */
+    private checkItemsInWeightRange(combinations: string[], packageItems: PackageItem[], maxWeight: number): string[] {
         const filteredCombinations: string[] = [];
         combinations.forEach(combCase => {
             let totalWeightForCase = 0;
@@ -141,7 +184,13 @@ export class Packer {
         return filteredCombinations;
     }
 
-    private getAllCombinationsForItemsIndexes(maxWeight: number, packageItems: any[]) {
+    /**
+     * get All Combinations For package Items Indexes excluding the one with weight > max weight
+     * @param maxWeight 
+     * @param packageItems 
+     * @returns 
+     */
+    private getAllCombinationsForItemsIndexes(maxWeight: number, packageItems: any[]): string[] {
         let buffer: string[] = [];
         let result: string[] = [];
         for (let i = 0; i < packageItems.length; i++) {
@@ -157,7 +206,11 @@ export class Packer {
         }
         return result;
     }
-
+    /**
+     * format the selected case to the desired output
+     * @param itemsWithHeightestCost 
+     * @returns string 
+     */
     private convertPackageSelectedItemsToString(itemsWithHeightestCost: string): string {
         return itemsWithHeightestCost.split('',).join();
     }

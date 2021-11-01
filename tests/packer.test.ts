@@ -1,13 +1,13 @@
 import { Packer } from './../src/packer';
 import { expect } from 'chai';
 import * as path from 'path';
-import { ApiError } from '../src/error';
+import { ApiError } from '../src/exceptions/error';
 import { CONSTANTS } from '../src/constants';
 
 const basedir = path.resolve('./')
 
 describe('packer package', function () {
-  
+
   it('pack single input - with only one valid item', async function () {
     const result = await Packer.pack(path.resolve(basedir, 'resources/package_with_only_one_valid_item'));
 
