@@ -8,7 +8,7 @@ total weight is less than or equal to the package limit and the total cost is as
 You would prefer to send a package which weighs less in case there is more than one package with the
 same price.
 
-##Solution
+## Solution
 each function are commented with the expected input and output and what should it does.
 
 i tried to make the code readable/clean as much as possible for better debuging and tracing.
@@ -19,9 +19,9 @@ the package only exporting the pack method to be used from outside and all other
 
 actually the solution is built within 2 days only due to personal/family circumstances which did not let me to have much imporivements to the code "not execuse"
 
-##Testing
+## Testing
 writting by Chai/Mocha and you can run **npm test** command for testing
 
-##packaging
+## packaging
 the package not published to npm and you can use **npm link** to install it locally for any project
 
